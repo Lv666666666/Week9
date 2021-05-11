@@ -1,0 +1,201 @@
+package vo;
+
+public class Province {
+	private String province;
+	private int count;
+	private String names;
+	public Province() {
+		super();
+	}
+	public Province(String province, int count, String names) {
+		super();
+		this.province = province;
+		this.count = count;
+		this.names = names;
+	}
+	public String getNames() {
+		return names;
+	}
+	public void setNames(String names) {
+		this.names = names;
+	}
+	public String getProvince() {
+		return province;
+	}
+	public void setProvince(String province) {
+		this.province = province;
+	}
+	public int getCount() {
+		return count;
+	}
+	public void setCount(int count) {
+		this.count = count;
+	}
+	public String toString() {
+		return "省份：" + province + ", 人数:" + count +"(" + names + ")";
+	}
+	
+}
+=====================================================================
+package vo;
+
+public class Student {
+	private String id;
+	private String name;
+	private String gender;
+	private String province;
+	public Student() {
+		super();
+	}
+	public Student(String id, String name, String gender, String province) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.gender = gender;
+		this.province = province;
+	}
+	public String getId() {
+		return id;
+	}
+	public void setId(String id) {
+		this.id = id;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public String getGender() {
+		return gender;
+	}
+	public void setGender(String gender) {
+		this.gender = gender;
+	}
+	public String getProvince() {
+		return province;
+	}
+	public void setProvince(String province) {
+		this.province = province;
+	}
+	public String toString() {
+		return "Student [id=" + id + ", name=" + name + ", gender=" + gender + ", province=" + province + "]";
+	}
+	
+}
+==========================================================================
+package Dao;
+
+import java.util.ArrayList;
+import java.util.Scanner;
+
+import vo.Province;
+import vo.Student;
+
+public class StudentDao {
+
+	//1.输入
+	public ArrayList<Student> input(){
+		ArrayList<Student> listStu = new ArrayList<Student>();
+		System.out.println("请输入学生的信息：（学号，姓名，性别，省份，以end结束）");
+		Scanner scan = new Scanner(System.in);
+		String student = scan.nextLine();
+		while(!student.equals("end")){
+			String array[] = student.split(",|，");
+			Student stu = new Student(array[0],array[1],array[2],array[3]);
+			listStu.add(stu);
+			student = scan.nextLine();
+		}	
+		return listStu;
+	}
+		
+	//2.
+	//总人数:listStu集合的大小
+	public int Total(ArrayList<Student> listStu){
+		return listStu.size();
+	}
+	
+	//按性别分类
+	public int byGender(ArrayList<Student> listStu,String gender){
+		int count = 0;
+		for (Student student : listStu) {
+			if(student.getGender().equals(gender)){
+				count++;
+			}
+		}
+		return count;
+	}
+	
+	
+	//按省份分类
+	public ArrayList<Province> byProvince(ArrayList<Student> listStu){
+		ArrayList<Province> listPro = new ArrayList<Province>();
+		
+		for(int i=0;i<listStu.size();i++){
+			Student stu = listStu.get(i);
+			String stuPro = stu.getProvince();
+			String name = stu.getName();
+			int index = isEmpty(listPro,stuPro);
+			//存在
+			if(index != -1){
+				Province oldprov = listPro.get(index);
+				oldprov.setCount(oldprov.getCount() + 1);
+				oldprov.setNames(oldprov.getNames() + ","+name);
+				listPro.set(index, oldprov);
+			}
+			//不存在
+			else{
+				Province prov = new Province(stuPro,1,name);
+				listPro.add(prov);
+			}
+		}
+		return listPro;
+	}
+	//判断省份是否存在集合中,在则返回其位置下标，否则返回-1
+	public int isEmpty(ArrayList<Province> listPro,String province){
+		int i = 0;
+		for (Province province1 : listPro) {
+			if(province1.getProvince().equals(province)){
+				return i;
+			}
+			i++;
+		}
+		return -1;
+		
+	}
+	
+	//3.输出
+	public void print(ArrayList<Student> listStu,ArrayList<Province> listPro){
+		int total = Total(listStu);
+		int maleCount = byGender(listStu,"男");
+		int femaleCount = byGender(listStu,"女");
+		
+		System.out.println("总人数：" + total);
+		System.out.println("其中男生：" + maleCount + ",占比：" + maleCount*100f/total + "%");
+		System.out.println("其中女生：" + femaleCount + ",占比：" + femaleCount*100f/total + "%");
+		
+		for (Province province : listPro) {
+			System.out.println(province.toString());
+		}
+	}
+}
+=======================================================================
+package Driver;
+
+import java.util.ArrayList;
+
+import Dao.StudentDao;
+import vo.Province;
+import vo.Student;
+
+public class Driver {
+
+	public static void main(String[] args) {
+		
+		StudentDao dao = new StudentDao();
+		ArrayList<Student> listStu = dao.input();
+		ArrayList<Province> listPro = dao.byProvince(listStu);
+		dao.print(listStu, listPro);
+	}
+
+}
