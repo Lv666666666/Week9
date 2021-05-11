@@ -1,0 +1,231 @@
+package vo;
+
+public class classGrade{
+	private String id;
+	private String className;
+	private String grade;
+	
+	public classGrade(String id, String className, String grade) {
+		super();
+		this.id = id;
+		this.className = className;
+		this.grade = grade;
+	}
+	public classGrade() {
+		super();
+	}
+	public String getId() {
+		return id;
+	}
+	public void setId(String id) {
+		this.id = id;
+	}
+	public String getClassName() {
+		return className;
+	}
+	public void setClassName(String className) {
+		this.className = className;
+	}
+	public String getGrade() {
+		return grade;
+	}
+	public void setGrade(String grade) {
+		this.grade = grade;
+	}
+	@Override
+	public String toString() {
+		return "id=" + id + ", className=" + className + ", grade=" + grade;
+	}
+	
+}
+==============================================================================
+package vo;
+
+public class Student {
+	private String id;
+	private String name;
+	private String gender;
+	private int count;
+	public Student() {
+		super();
+	}
+	public Student(String id, String name, String gender) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.gender = gender;
+		count++;
+	}
+	public int getCount() {
+		return count;
+	}
+	public void setCount(int count) {
+		this.count = count;
+	}
+	public String getId() {
+		return id;
+	}
+	public void setId(String id) {
+		this.id = id;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public String getGender() {
+		return gender;
+	}
+	public void setGender(String gender) {
+		this.gender = gender;
+	}
+	@Override
+	public String toString() {
+		return id +"\t"+ name +"\t"+ gender;
+	}
+	
+}
+=========================================================================
+package Dao;
+
+import vo.Student;
+import vo.classGrade;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Scanner;
+
+public class processDao {
+
+	//1.输入
+	public ArrayList<Student> inputStu(){
+		ArrayList<Student> listStu = new ArrayList<Student>();
+		System.out.println("请输入学生基本信息：（学号，姓名和性别,以end结束）");
+		Scanner scan = new Scanner(System.in);
+		String stu = scan.next();
+		while(!stu.equals("end")) {
+			String stud[] = stu.split(",|，");
+			Student student = new Student(stud[0],stud[1],stud[2]);
+			listStu.add(student);
+			stu = scan.next();
+		}
+		return listStu;
+	}
+	
+	public ArrayList<classGrade> inputGra(){
+		ArrayList<classGrade> listGra = new ArrayList<classGrade>();
+		System.out.println("请输入学生成绩：（学号，课程名称和成绩，以end结束）");
+		Scanner scan = new Scanner(System.in);
+		String gra = scan.next();
+		while(!gra.equals("end")) {
+			String grad[] = gra.split(",|，");
+			classGrade grade = new classGrade(grad[0],grad[1],grad[2]);
+			listGra.add(grade);
+			gra = scan.next();
+		}
+		return listGra;
+	}
+	
+	//2.
+	public boolean exist(String array[],String str) {
+		if(array != null) {
+			for (String string : array) {
+				if(str.equals(string)) {
+					return true;
+				}
+			}
+			return false;
+		}
+		else {
+			return false;
+		}
+	}
+	public double averageByClass(classGrade classGrade,ArrayList<classGrade> listGra,ArrayList<Student> listStu) {
+		double sum = 0;
+		double average = 0;
+		for (classGrade classGrade1 : listGra) {
+			if(classGrade.getClassName().equals(classGrade1.getClassName())) {
+				sum = sum + Integer.parseInt(classGrade1.getGrade());
+			}
+		}
+		average = sum / listStu.size();
+		return average;
+	}
+	public double averageByStu(Student student,ArrayList<classGrade> listGra) {
+		double sum = 0;
+		double average = 0;
+		int i = 0;
+		for (classGrade classGrade : listGra) {
+			if(classGrade.getId().equals(student.getId())) {
+				sum = sum + Integer.parseInt(classGrade.getGrade());
+				i++;
+			}
+		}
+		average = sum / i;
+		return average;
+	}
+	
+	//3.输出
+	public void print(ArrayList<Student> listStu,ArrayList<classGrade> listGra) {	
+		System.out.println("按学生统计：");
+		System.out.println("学号\t姓名\t性别\t平均分");
+		for (Student student : listStu) {
+			System.out.println(student.toString() + "\t" + String.format("%.1f", averageByStu(student,listGra)));
+		}		
+		System.out.println("按课程统计：");
+		System.out.println("课程\t平均分");
+		String[] array = new String[10];
+		int i = 0;
+		for (classGrade classGrade : listGra) {
+			if(!exist(array,classGrade.getClassName())) {
+				array[i] = classGrade.getClassName();
+				i++;
+				System.out.println(classGrade.getClassName() + "\t" + String.format("%.1f", averageByClass(classGrade,listGra,listStu)));
+			}
+		}
+	}
+}
+	/*
+001，张珊，女
+002，李云，男
+003，王燕，女
+004，刘华，男
+end
+
+001，Java，90
+002，Java，80
+003，Java，70
+004，Java，85
+001，网络，90
+002，网络，88
+003，网络，90
+004，网络，88
+001，C，90
+002，C，88
+003，C，90
+004，C，88
+end
+	 */
+	
+====================================================================================
+package Driver;
+
+import vo.classGrade;
+import java.util.ArrayList;
+
+import Dao.processDao;
+import vo.Student;
+
+public class Driver {
+
+	public static void main(String[] args) {
+
+		processDao dao = new processDao();
+		ArrayList<Student> listStu = dao.inputStu();
+		ArrayList<classGrade> listGra = dao.inputGra();
+		
+		dao.print(listStu, listGra);
+	}
+
+}
